@@ -16,12 +16,12 @@ let foot = {
   stride: 2,
   
 //  holdTime: 30, /* hold time is just the other foot's swing time */
-  swingTime: 30, 
+  swingTime: 15, 
   inTime: 3,
   outTime: 3,
 
   holdSize: 1.0,
-  inSize: 1.0,
+  inSize: 0.8,
   swingSize: 0.5, 
   outSize: 1.2,
   
@@ -37,8 +37,6 @@ function setup() {
 function draw() {
 
   if (isRunning) {
-    
-  myFrame++; 
   
   let cycle = {};
 
@@ -51,7 +49,7 @@ function draw() {
   cycle.time = ( foot.inTime + foot.swingTime + foot.outTime ) ;
   
   // how many frames are we into the current cycle?
-  cycle.frameSeq = myFrame % cycle.time;
+  cycle.frameSeq = myFrame % cycle.time + 1;
   
   // BEGIN with inTime and outTime 
   // FOOT 1 begins inTime, it's picking up, shifting weight to FOOT 2
@@ -63,44 +61,44 @@ function draw() {
   
   // here's where the current foot needs to reference the timing of the other foot to coordinate
   // footSizes are relative to foot.size - they increase or decrease; foot.size -1 to get there
-    
-  console.log( "Size: " + foot.size + "   seq: " + cycle.frameSeq + "   frame: " + myFrame );
-  console.log(foot.inTime);
-    
-  if ( cycle.frameSeq <= foot.inTime ) { 
-    // FRAMES 1 through 3 
-    // this foot is getting more weight put on it as the other foot begins to swing
-    foot.size = foot.size + ( foot.size * ( foot.outSize - 1 ) * ( cycle.frameSeq / foot.outTime ) ) ; 
-    // looks like 50.333 = 50 + ( 50 * ( 1.2 - 1 ) * ( 1 / 3 ) ) for FRAME 1
-    circle(width/2,height/2,foot.size);
 
-  } 
-  else if ( cycle.frameSeq <= foot.inTime + foot.swingTime ) {
-    // FRAMES 4 though 33
-    // while the other foot swings, this foot stays solidly in place - no x,y or d change
-    // this foot holds in place while the other foot swings
-    foot.size = foot.size + foot.size * ( foot.outSize - 1 ) ; 
+  if ( cycle.frameSeq <= foot.inTime ) { 
+    // IN   FRAMES 1 through 3 
+    // this foot gets bigger as the other foot swings
+    foot.size = foot.size + ( foot.size * foot.outSize - foot.size ) / foot.outTime; 
     circle(width/2,height/2,foot.size);
+    console.log( "IN    local: " + cycle.frameSeq + "   frame: " + myFrame + "    Size: " + foot.size );
   } 
-  else if ( cycle.frameSeq <= foot.inTime + foot.swingTime + foot.outTime ) {
-    // FRAMES 34 through 36
+    else if ( cycle.frameSeq <= foot.inTime + foot.swingTime ) {
+    // SWING   FRAMES 4 though 33
+    // this foot HOLDS while the other swings
+    circle(width/2,height/2,foot.size);
+    console.log( "SWING    local: " + cycle.frameSeq + "   frame: " + myFrame + "    Size: " + foot.size );
+  } 
+    else {
+      
+    // OUT   FRAMES 34 through 36
     // this foot begins to shift its weight to the other foot
     // need to know how many frames INTO this stage of the cycle we are
     // if we're at 34, this sequence is at local frame 1
+      
     let localFrame = ( cycle.frameSeq % ( foot.inTime + foot.swingTime ) )
     // looks like  1 = ( 34 % ( 3 + 30 ) ) 
-    foot.size = 
-      (foot.size + foot.size * ( foot.outSize - 1 ) ) /* match existing size */  +
-      foot.size * (foot.inSize - foot.outSize) * ( localFrame / foot.outTime ) ;
-    // 56.666 = (60) + 50 * (1.0 - 1.2) * ( 1 / 3 )
+    
+    foot.size =  foot.size + ( foot.size * foot.inSize - foot.size ) / foot.inTime; 
+      
     circle(width/2,height/2,foot.size);
+    console.log( "OUT    local: " + cycle.frameSeq + "   frame: " + myFrame + "    Size: " + foot.size );
   }
   
   isRunning = !isRunning;
-    
+  myFrame++; 
   }
   
 }
+
+
+
 
 
 
