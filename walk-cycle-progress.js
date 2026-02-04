@@ -3,6 +3,7 @@
 // this system, one cycle is the timing to move one leg, ie 1 cycle would be 0.5 seconds
 
 let isRunning = false;
+let myFrame = 0;
 
 let foot = {
   name: "fred",
@@ -36,6 +37,8 @@ function setup() {
 function draw() {
 
   if (isRunning) {
+    
+  myFrame++; 
   
   let cycle = {};
 
@@ -48,7 +51,7 @@ function draw() {
   cycle.time = ( foot.inTime + foot.swingTime + foot.outTime ) ;
   
   // how many frames are we into the current cycle?
-  cycle.frameSeq = frameCount % cycle.time;
+  cycle.frameSeq = myFrame % cycle.time;
   
   // BEGIN with inTime and outTime 
   // FOOT 1 begins inTime, it's picking up, shifting weight to FOOT 2
@@ -60,13 +63,17 @@ function draw() {
   
   // here's where the current foot needs to reference the timing of the other foot to coordinate
   // footSizes are relative to foot.size - they increase or decrease; foot.size -1 to get there
-  
+    
+  console.log( "Size: " + foot.size + "   seq: " + cycle.frameSeq + "   frame: " + myFrame );
+  console.log(foot.inTime);
+    
   if ( cycle.frameSeq <= foot.inTime ) { 
     // FRAMES 1 through 3 
     // this foot is getting more weight put on it as the other foot begins to swing
     foot.size = foot.size + ( foot.size * ( foot.outSize - 1 ) * ( cycle.frameSeq / foot.outTime ) ) ; 
     // looks like 50.333 = 50 + ( 50 * ( 1.2 - 1 ) * ( 1 / 3 ) ) for FRAME 1
     circle(width/2,height/2,foot.size);
+
   } 
   else if ( cycle.frameSeq <= foot.inTime + foot.swingTime ) {
     // FRAMES 4 though 33
