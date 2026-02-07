@@ -1,140 +1,111 @@
-// change of perspective:
-// usually a walk cycle is a complete left/right set, ie 1 cycle might be 1 seconds
-// this system, one cycle is the timing to move one leg, ie 1 cycle would be 0.5 seconds
-
+// TOP DOWN WALK CYCLES
+// can circles look like they're walking?
+// ----------------------------------------------
+// using #FREEZE_FRAME while working on the code: 
+// substitutes using myFrame in place of frameCount
+// mouse click to advance frame by frame
 let isRunning = false;
-let myFrame = 0; /* mousePress frame by frame */
+let myFrame = 0;
+let test;
 
-let foot = {
-  name: "fred",
-  side: 1,     /* think 'left' or 'right' - but use an integer for id & sequence */
-  shoeSize: 50,
-  
-  xPos: -50,
-  yPos: 300,
-  size: 50, 
-  
-  stride: 2,
-  
-//  holdTime: 30, /* hold time is just the other foot's swing time */
-  swingTime: 30, 
-  shiftTime: 3,
-  strikeTime: 3,
-
-  holdSize: 1.0,
-  shiftSize: 0.8,
-  shiftInc: 0,
-  swingSize: 0.5, 
-  swingInc: 0,
-  strikeSize: 1.2,
-  strikeInc: 0,
-  
-  swingApex: 1.3,
-  swingDrag: 0.0   /* don't worry about drag for now */
-}
+let walk = [
+  [
+    "fred",
+    [
+      {
+        phase: "swing",
+        shoeSize: 20,
+        stride: 3,
+        swingTime: 30,
+        restTime: 0,
+        arcSize: 0.9,
+        arcApex: 1.2,
+        drag: 0
+      },
+      {
+        phase: "strike",
+        shoeSize: 20,
+        stride: 3,
+        swingTime: 30,
+        restTime: 0,
+        arcSize: 0.9,
+        arcApex: 1.2,
+        drag: 0
+      },
+    ],
+    [
+      { frame: 0, start: [100,-20], stop: [100, 500], acc: 1.0 }, 
+      { frame: 200, stop: [200, 500], acc: 1.0 }, 
+      { frame: 400, stop: [300, 400], acc: 1.0 }, 
+    ],
+  ],
+];
 
 function setup() {
-  createCanvas(windowWidth,windowHeight);
-  frameRate(60); 
+  createCanvas(windowWidth, windowHeight);
+  frameRate(60);
+  noStroke();
+  //p5.disableFriendlyErrors = true;                          // #TODO if animation stutters
 }
 
 function draw() {
-
   if (isRunning) {
-  
-  let cycle = {};
-    
-  background(0)
+    background(0);
 
-  // a full cycleLength = sum of all feet per name 
-  // #TODO - need to store/retrieve values of all feet per name #
-  // for now, assume (a) only 2 feet -and- (b) each foot has identical timing
-  
-  cycle.time = ( foot.shiftTime + foot.swingTime + foot.strikeTime ) ;
-  
-  // how many frames are we into the current cycle?
-  cycle.frame = myFrame % cycle.time + 1; /* what frame of the cycle are we on? */
-  
-  // BEGIN with inTime and outTime 
-  // FOOT 1 begins inTime, it's picking up, shifting weight to FOOT 2
-  // FOOT 2 begins outTime, it's staying in place, adjusting for the extra weight - as though it just stepped
-  // result: Frames 1-3, FOOT 1 should decrease in size & FOOT 2 should increase in size
-  // incrementally over the first 3 frames of cycle
-  
-  // just do FOOT 2 for now 
+    // -1- iterate through the names
+    // -2- iterate through instructions backwards
+    // -3- draw each foot
+    // from standing, take 1/2 stride
 
-  let msg = "    local: " + cycle.frame + "   Size: " + foot.size;
-
-  if ( cycle.frame <= foot.shiftTime ) { 
-    // STRIKE FRAMES 1 through 3 
-    // 1 foot shifts / the other strikes
-
-    foot.strikeInc = round( ( ( foot.shoeSize * foot.strikeSize ) - 
-                              ( foot.shoeSize + foot.shiftInc * foot.shiftTime ) ) / 
-                                foot.strikeTime, 0);
-    
-    foot.size = foot.size + foot.strikeInc;
-        
-    circle(width/2,height/2,foot.size);
-
-    console.log("stage: STRIKE" + "    size: " + foot.size + "    inc: " + foot.strikeInc);
-  } 
-    else if ( cycle.frame <= foot.shiftTime + foot.swingTime ) {
-    // SWING   FRAMES 4 though 33
-    // this foot HOLDS while the other swings
-    circle(width/2,height/2,foot.size);
-    console.log("stage: SWING" + "    size: " + foot.size + "    inc: 0");
-  } 
-    else {
-      
-    // OUT   FRAMES 34 through 36
-    // this foot begins to shift its weight to the other foot
-    // need to know how many frames INTO this stage of the cycle we are
-    // if we're at 34, this sequence is at local frame 1
-      
-    foot.shiftInc = round( ( ( foot.shoeSize * foot.shiftSize) - 
-                             ( foot.shoeSize + foot.strikeInc * foot.strikeTime ) ) / 
-                               foot.shiftTime, 0);
+    for (let i = 0; i < walk.length; i++) {                    // -1- iterate through names
+      //console.log(walk[i][0]) /* returns name */
+      for (let j = walk[i][2].length - 1; j >= 0; j--) {       // -2- rev iterate to target frame
+        if (myFrame >= walk[i][2][j].frame) {                  // REMOVE #FREEZE_FRAME 
+          //console.log(walk[i][2][j].stop[0]); /* xPos for stopping */
+          for ( let k = walk[i][1].length - 1; k >= 0; k--) {
+            console.log(walk[i][1][k]); /* object containing FOOT params */
             
-    circle(width/2,height/2,foot.size);
+            // need start and end points - but they aint' so obvious
+            
+            if ( walk[i][2][j].start ) {
+                POS0 = walk[i][2][j].start
+                test = test + "   Positon 0: " + POS0; 
+                } else {
+                  pos0 = createVector( walk[i][1][j].start[0], walk[i][2][j].start[1] ); 
+                  pos1 = createVector( walk[i][2][j].stop[0], walk[i][2][j].stop[1] );  
+                }
+            
+            
 
-    foot.size = foot.size + foot.shiftInc; 
-      
-    console.log("stage: SHIFT" + "    size: " + foot.size + "    inc: " + foot.shiftInc);
-  }
+            
+            test = test + "    Vector distance: " + pos0.dist(pos1);
+            // 520px length with a 60px stride
+            // that's 8 full strides (8 full cycles of each leg) - TODO allow for more legs
+            // with 0.66 remainder - almost 40 pixels
+            // starting & stopping require a partial-steps to even up the feet
+            // divide the remainder in two and use at start & stop
+            // TODO allow for ease-in & ease-out
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-  isRunning = !isRunning;
-  myFrame++; 
+            
+            
+            
+            
+            
+            console.log(test);
+            
+            
+          }
+          j = -1;                                              // TODO for empty array (low)
+        }
+      }
+    }
+
+    isRunning = !isRunning;                                    // #FREEZE_FRAME
+    myFrame++;
   }
-  
 }
 
-
-
-
-
-
-
-
-
-
-function mousePressed() {
+function mousePressed() {                                      // #FREEZE_FRAME
   isRunning = !isRunning; // Toggle state
   if (isRunning) {
     loop(); // Resume draw()
@@ -142,27 +113,3 @@ function mousePressed() {
     noLoop(); // Stop draw()
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
