@@ -6,7 +6,7 @@
 // mouse click to advance frame by frame
 let isRunning = false;
 let myFrame = 0;
-let test;
+let vect00, vect01;
 
 let walk = [
   [
@@ -20,7 +20,9 @@ let walk = [
         restTime: 0,
         arcSize: 0.9,
         arcApex: 1.2,
-        drag: 0
+        drag: 0,
+        lastX: 1,
+        lastY: 1
       },
       {
         phase: "strike",
@@ -30,15 +32,51 @@ let walk = [
         restTime: 0,
         arcSize: 0.9,
         arcApex: 1.2,
-        drag: 0
-      },
+        drag: 0,
+        lastX: 1,
+        lastY: 1
+      }
     ],
     [
-      { frame: 0, start: [100,-20], stop: [100, 500], acc: 1.0 }, 
+      { frame: 0, start:[100, -20], stop: [100, 500], acc: 1.0 }, 
       { frame: 200, stop: [200, 500], acc: 1.0 }, 
       { frame: 400, stop: [300, 400], acc: 1.0 }, 
-    ],
+    ]
   ],
+  [
+    "barney",
+    [
+      {
+        phase: "swing",
+        shoeSize: 20,
+        stride: 3,
+        swingTime: 30,
+        restTime: 0,
+        arcSize: 0.9,
+        arcApex: 1.2,
+        drag: 0,
+        lastX: 1,
+        lastY: 1
+      },
+      {
+        phase: "strike",
+        shoeSize: 20,
+        stride: 3,
+        swingTime: 30,
+        restTime: 0,
+        arcSize: 0.9,
+        arcApex: 1.2,
+        drag: 0,
+        lastX: 1,
+        lastY: 1
+      }
+    ],
+    [
+      { frame: 0, start:[100, -20], stop: [100, 500], acc: 1.0 }, 
+      { frame: 200, stop: [200, 500], acc: 1.0 }, 
+      { frame: 400, stop: [300, 400], acc: 1.0 }, 
+    ]
+  ]
 ];
 
 function setup() {
@@ -56,52 +94,72 @@ function draw() {
     // -2- iterate through instructions backwards
     // -3- draw each foot
     // from standing, take 1/2 stride
+    
+    // REFERENCE
+    // walk[i][0] name
+    // walk[i][2][j] instructions / walk[i][2][j].frame 
+    // walk[i][1][k] foot         / walk[i][1][k].shoeSize
+ 
 
-    for (let i = 0; i < walk.length; i++) {                    // -1- iterate through names
-      //console.log(walk[i][0]) /* returns name */
-      for (let j = walk[i][2].length - 1; j >= 0; j--) {       // -2- rev iterate to target frame
-        if (myFrame >= walk[i][2][j].frame) {                  // REMOVE #FREEZE_FRAME 
-          //console.log(walk[i][2][j].stop[0]); /* xPos for stopping */
-          for ( let k = walk[i][1].length - 1; k >= 0; k--) {
-            console.log(walk[i][1][k]); /* object containing FOOT params */
-            
-            // need start and end points - but they aint' so obvious
-            
-            if ( walk[i][2][j].start ) {
-                POS0 = walk[i][2][j].start
-                test = test + "   Positon 0: " + POS0; 
-                } else {
-                  pos0 = createVector( walk[i][1][j].start[0], walk[i][2][j].start[1] ); 
-                  pos1 = createVector( walk[i][2][j].stop[0], walk[i][2][j].stop[1] );  
+    for (let i = 0; i < walk.length; i++) {                      // -i- NAMES 
+      for (let j = walk[i][2].length - 1; j >= 0; j--) {         // -j- INSTRUCTIONS | reverse |
+
+        if (myFrame >= walk[i][2][j].frame) {                    // #TODO replace #FREEZE_FRAME
+
+          for ( let k = 0; k < walk[i][1].length; k++) {         // -k- FEET 
+            // determine start point - if it isn't set in instructions, use last postion
+            if ( walk[i][2][j].start ) { 
+                  vect00 = createVector( walk[i][2][j].start[0], walk[i][2][j].start[1] );
+                } else { // use existing
+                  vect00 = createVector(walk[i][1][k].lastX,walk[i][1][k].lastY);
                 }
+
+
+            // destination point
+            vect01 = createVector( walk[i][2][j].stop[0], walk[i][2][j].stop[1] );  
             
+            stroke(255)
+            line(vect00.x, vect00.y, vect01.x, vect01.y);            
             
+            // 1 stride = 1 foot step = 1/2 one full walk cycle
+            // 520px length with a 60px stride | 520 / 60 = 8.6666
+            // 8 strides = 4 steps Swing foot and 4 steps with Strike foot
+            // 40 pixels remaining (0.666) can be used for the in and out 1/2 steps
+            // if there was no remainder, use 1 stride and divide it to the in/out
+            // in step = 20px | increment steps = 30 - as set | out step = 20
+            
+            // Set increments for this and future draws
+            // pretend stuff
+            let inc = createVector ( 
+              (vect01.x-vect00.x)/walk[i][1][k].swingTime, 
+              (vect01.y-vect00.y)/walk[i][1][k].swingTime
+            )
+            
+            vect00 = vect00.add(inc);
+            
+            circle(vect00.x, vect00.y, 25)
 
             
-            test = test + "    Vector distance: " + pos0.dist(pos1);
-            // 520px length with a 60px stride
-            // that's 8 full strides (8 full cycles of each leg) - TODO allow for more legs
-            // with 0.66 remainder - almost 40 pixels
-            // starting & stopping require a partial-steps to even up the feet
-            // divide the remainder in two and use at start & stop
-            // TODO allow for ease-in & ease-out
-
             
-            
-            
-            
-            
-            console.log(test);
-            
+// #############################################
+// CONSOLE LOG
+   console.log(
+     walk[i][0] + 
+     "  start: " + vect00.x + "," + vect00.y + 
+     "  vectDist: " + round(vect00.dist(vect01)) + 
+     "  phase: " + walk[i][1][k].phase);
             
           }
+          
           j = -1;                                              // TODO for empty array (low)
+          
         }
       }
     }
 
-    isRunning = !isRunning;                                    // #FREEZE_FRAME
+    isRunning = !isRunning;                                    // TODO remove #FREEZE_FRAME
     myFrame++;
+    TEST123="";
   }
 }
 
