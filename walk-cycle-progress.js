@@ -6,7 +6,9 @@
 // mouse click to advance frame by frame
 let isRunning = false;
 let myFrame = 0;
-let vectorStart, vectorStop, vectorLength, fullStep, halfStep, totalSteps;
+
+
+let vectorStart, vectorStop, vectorLength, fullStep, halfStep, framesToDraw, shoeSize;
 
 let walk = [
   [
@@ -23,11 +25,12 @@ let walk = [
         drag: 0,
         vectorLastPos: null,
         vectorDestination: null,
-        vectorFullStep: null,
-        vectorHalfStep: null,
+        vectorFullStepInc: null,
+        vectorHalfStepInc: null,
         vectorApex: null,
-        totalSteps: 0,
-        stepCount: 0,
+        framesToDraw: 0,
+        framesCompleted: 0,
+        lastShoeSize: 0
       },
       {
         phase: "strike",
@@ -40,11 +43,12 @@ let walk = [
         drag: 0,
         vectorLastPos: null,
         vectorDestination: null,
-        vectorFullStep: null,
-        vectorHalfStep: null,
+        vectorFullStepInc: null,
+        vectorHalfStepInc: null,
         vectorApex: null,
-        totalSteps: 0,
-        stepCount: 0,
+        framesToDraw: 0,
+        framesCompleted: 0, 
+        lastShoeSize: 0
       },
     ],
     [
@@ -67,10 +71,6 @@ function draw() {
     background(0);
 
     vectorTranslator(walk);
-
-    vectorStart = vectorStart.add(vectorFullStep);
-
-    circle(vectorStart.x, vectorStart.y, 25);
 
     isRunning = !isRunning; // TODO remove #FREEZE_FRAME
     myFrame++;
@@ -97,18 +97,16 @@ function vectorTranslator() {
   // walk[i][2][j] instructions / walk[i][2][j].frame  /  100
   // walk[i][1][k] foot         / walk[i][1][k].shoeSize  / 20
 
-  for (let i = 0; i < walk.length; i++) {
-    // -i- NAMES
-    for (let j = walk[i][2].length - 1; j >= 0; j--) {
-      // -j- INSTRUCTIONS | reverse |
+  for (let i = 0; i < walk.length; i++) {                                           // -i- NAMES
 
-      if (myFrame >= walk[i][2][j].frame) {
-        // #TODO replace #FREEZE_FRAME
+    for (let j = walk[i][2].length - 1; j >= 0; j--) {                              // -j- INSTRUCTIONS | reverse |
 
-        for (let k = 0; k < walk[i][1].length; k++) {
-          // -k- FEET
+      if (myFrame >= walk[i][2][j].frame) {                                         // #TODO replace #FREEZE_FRAME
 
-          // < NEW_INSTRUCTION > what to do when New Instructions are encountered
+      // use the instructions that work with the current frame count
+        for (let k = 0; k < walk[i][1].length; k++) {                               // -k- FEET
+
+          // < PROCESS_INSTRUCTION >  done once per set of instructions
           if (myFrame === walk[i][2][j].frame) {
             // the first position (start) for the foot
             if (walk[i][1][k].vectorLastPos) {
@@ -130,23 +128,26 @@ function vectorTranslator() {
             vectorLength = vectorStart.dist(vectorStop);
             fullStep = walk[i][1][k].shoeSize * walk[i][1][k].stride;
 
-            // half steps - one at the start & one at the end
-            if (vectorLength % fullStep >= fullStep / 1.25) {
-              // aesthetically, half-steps shouldn't be too short
+            // halfSteps absorb the remainder that the fullSteps can't use
+            if ( vectorLength % fullStep >= fullStep / 1.5 ) {
+              // the half step takes 1/2 the swing time
               halfStep = (vectorLength % fullStep) / 2;
             } else {
               // take a 1/2 step away from vector length and add it to the remainder
               halfStep = ((vectorLength % fullStep) + fullStep / 2) / 2;
             }
 
-            totalSteps = ((vectorLength - halfStep * 2) % fullStep) + 2;
+            framesToDraw = (vectorLength - halfStep * 2) / fullStep ;
+            framesToDraw = framesToDraw * walk[i][1][k].swingTime;
+            shoeSize = walk[i][1][k].shoeSize;
 
             // translate steps to vector increments
-            vectorFullStep = createVector(
-              (vectorStop.x - vectorStart.x) / walk[i][1][k].swingTime,
-              (vectorStop.y - vectorStart.y) / walk[i][1][k].swingTime
-            );
-            vectorHalfStep = vectorFullStep.mult(halfStep / fullStep);
+            // timing: 1 full step requires 1 full swing time (measured in frames)
+            // half-step should be 1/2 swing time
+            vectorFullStepInc = createVector( 
+              ( vectorStop.x - vectorStart.x) / 
+                fullStep, (vectorStop.y - vectorStart.y) / fullStep ).mult(1/walk[i][1][k].swingTime);
+            vectorHalfStepInc = vectorFullStepInc.mult(halfStep / fullStep);
 
             // vector of apex to use in calculating circle size
             vectorApex = p5.Vector.lerp(
@@ -158,52 +159,71 @@ function vectorTranslator() {
             // pass to global for future use
             walk[i][1][k].vectorLastPos = vectorStart.copy();
             walk[i][1][k].vectorDestination = vectorStop.copy();
-            walk[i][1][k].vectorFullStep = vectorFullStep.copy();
-            walk[i][1][k].vectorHalfStep = vectorFullStep.copy();
+            walk[i][1][k].vectorFullStepInc = vectorFullStepInc.copy();
+            walk[i][1][k].vectorHalfStepInc = vectorFullStepInc.copy(); // not calc'ing right
             walk[i][1][k].vectorApex = vectorApex.copy();
-            walk[i][1][k].totalSteps = totalSteps;
-            walk[i][1][k].stepCount = 0;
+            walk[i][1][k].framesToDraw = framesToDraw;
+            walk[i][1][k].framesCompleted = 0;
+            walk[i][1][k].lastShoeSize = shoeSize;
             // That should be all the stuff needed to draw
-          }
-          // < / NEW_INSTRUCTION >
+            } 
+          j = -2;                                                                   // exit after #TODO fail for empty
+          // < / PROCESS_INSTRUCTION >
+          
+          // < DRAW >
+          // draw every frame!
+          // each full step takes 1 swing time
+          // each half step takes 1 swing time
+          // technically each leg should have its own custom timing
+          // ie the strike leg waits for the swing leg - right now, each leg has same timing so it doesn't matter
 
-          // < FOLLOWING_INSTRUCTION >
-          else if (walk[i][1][k].lastPos) {
-            if (
-              walk[i][1][k].stepCount === 0 ||
-              walk[i][1][k].stepCount === walk[i][1][k].totalSteps - 1
-            ) {
-              // first step or last step, take half step
-              vectorStart = walk[i][1][k].lastPos.add(
-                walk[i][1][k].vectorHalfStep
-              );
-            } else {
-              // take a full step
-              vectorStart = walk[i][1][k].lastPos.add(
-                walk[i][1][k].vectorFullStep
-              );
-            }
+          if ( walk[i][1][k].framesCompleted >= walk[i][1][k].framesToDraw ||
+                    walk[i][1][k].phase != "swing" ) { 
+                    // nothing to do but to redraw last position
+                    vectorStart = walk[i][1][k].lastPos;
+                    shoeSize = walk[i][1][k].lastShoeSize;
+          } 
+          
+          else if ( walk[i][1][k].framesCompleted <= walk[i][1][k].swingTime || 
+                      walk[i][1][k].framesCompleted >= walk[i][1][k].framesToDraw - walk[i][1][k].swingTime ) {
+            // take half steps when in the first or last set of frames
             
-            circle(vectorStart.x, vectorStart.y, 25);
+            vectorStart = walk[i][1][k].vectorLastPos.add(walk[i][1][k].vectorHalfStepInc);
+            // shoe size should reduce in size as it gets closer to the apex point
+            shoeSize = walk[i][1][k].lastShoeSize * walk[i][1][k].vectorApex / vectorStart;
+// #######################################################################
+console.log("myFrame: " + myFrame + "   test: " + vectorStart.x );
+// ########################################################################
+
+          } 
+          
+          else {
+            // take full steps for all other frames
+            vectorStart = walk[i][1][k].vectorLastPos.add(walk[i][1][k].vectorFullStepInc);
+            shoeSize = walk[i][1][k].lastShoeSize * walk[i][1][k].vectorApex / vectorStart;
           }
+
+          circle( vectorStart.x, vectorStart.y, shoeSize );
+
+          // pass to global for future use 
+          walk[i][1][k].vectorLastPos = vectorStart.copy();
+          walk[i][1][k].vectorLastPos = vectorStart.copy();
+          walk[i][1][k].lastShoeSize = shoeSize;
+          walk[i][1][k].framesCompleted++
+          // < / DRAW >
 
           // #############################################
           // CONSOLE LOG
           console.log(
-            walk[i][0] +
+            walk[i][0] + " " + walk[i][1][k].framesCompleted + 
               "  start: " +
-              round(vectorStart.x) +
+              round(walk[i][1][k].vectorApex.x) +
               "," +
-              round(vectorStart.y) +
+              round(walk[i][1][k].vectorApex.y) +
               "  len: " +
               vectorLength +
               "  phase: " +
               walk[i][1][k].phase
           );
-        }
-
-        j = -1; // TODO for empty array (low)
-      }
-    }
-  }
-}
+          
+        } } } } }
