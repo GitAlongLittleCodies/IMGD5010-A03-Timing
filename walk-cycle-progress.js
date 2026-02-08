@@ -20,8 +20,10 @@ let walk = [
         stride: 3,
         swingTime: 30,
         restTime: 0,
-        arcSize: 0.9,
-        arcApex: 0.7, // that's % of framesToDraw
+        arcSize: 0.9, 
+        arcApex: 0.7, // the num of frames before apex maximum
+        arcFramesIN: null,
+        arcFramesOUT: null,
         drag: 0,
         vectorLastPos: null,
         vectorDestination: null,
@@ -30,7 +32,9 @@ let walk = [
         vectorApex: null, // depreciated
         framesToDraw: 0,
         framesCompleted: 0,
-        lastShoeSize: 0
+        lastShoeSize: 0,
+        shoeSizeIncIN: null,
+        shoeSizeIncOUT: null
       },
       {
         phase: "strike",
@@ -38,8 +42,10 @@ let walk = [
         stride: 3,
         swingTime: 30,
         restTime: 0,
-        arcSize: 0.9,
-        arcApex: 0.7,
+        arcSize: 0.9, 
+        arcApex: 0.7, // the num of frames before apex maximum
+        arcFramesIN: null,
+        arcFramesOUT: null,
         drag: 0,
         vectorLastPos: null,
         vectorDestination: null,
@@ -47,8 +53,10 @@ let walk = [
         vectorHalfStepInc: null,
         vectorApex: null, // depreciated
         framesToDraw: 0,
-        framesCompleted: 0, 
-        lastShoeSize: 0
+        framesCompleted: 0,
+        lastShoeSize: 0,
+        shoeSizeIncIN: null,
+        shoeSizeIncOUT: null
       },
     ],
     [
@@ -138,9 +146,8 @@ function vectorTranslator() {
               halfStep = ((vectorLength % fullStep) + fullStep / 2) / 2;
             }
 
-            framesToDraw = (vectorLength - halfStep * 2) / fullStep ;
-            framesToDraw = framesToDraw * walk[i][1][k].swingTime;
-            shoeSize = walk[i][1][k].shoeSize;
+            framesToDraw = (vectorLength - halfStep * 2) / fullStep * walk[i][1][k].swingTime +
+                             2 /* half-steps */ * walk[i][1][k].swingTime;
 
             // translate steps to vector increments
             // timing: 1 full step requires 1 full swing time (measured in frames)
@@ -157,6 +164,16 @@ function vectorTranslator() {
               walk[i][1][k].arcApex
             );
 
+            // how to size a shoe
+              arcFramesIN = walk[i][1][k].arcApex * walk[i][1][k].framesToDraw; 
+              arcFramesOUT = walk[i][1][k].framesToDraw - arcFramesIN; 
+              shoeSizeIncIN = 
+                walk[i][1][k].shoeSize * walk[i][1][k].arcSize * 
+                walk[i][1][k].framesCompleted / walk[i][1][k].framesToDraw; 
+              shoeSizeIncOUT = 
+                walk[i][1][k].shoeSize * 1 / walk[i][1][k].arcSize * 
+                walk[i][1][k].framesToDraw / walk[i][1][k].framesCompleted; 
+            
             // pass to global for future use
             walk[i][1][k].vectorLastPos = vectorStart.copy();
             walk[i][1][k].vectorDestination = vectorStop.copy();
