@@ -6,7 +6,7 @@
 // mouse click to advance frame by frame
 let isRunning = false;
 let myFrame = 0;
-let vect00, vect01;
+let vectorStart, vectorStop, vectorLength , fullStep, halfStep;
 
 let walk = [
   [
@@ -19,10 +19,13 @@ let walk = [
         swingTime: 30,
         restTime: 0,
         arcSize: 0.9,
-        arcApex: 1.2,
+        arcApex: 0.7,
         drag: 0,
-        lastX: 1,
-        lastY: 1
+        vectorLastPos: null,
+        vectorDestination: null,
+        vectorFullStep: null, 
+        vectorHalfStep: null,
+        vectorApex: null
       },
       {
         phase: "strike",
@@ -31,47 +34,16 @@ let walk = [
         swingTime: 30,
         restTime: 0,
         arcSize: 0.9,
-        arcApex: 1.2,
+        arcApex: 0.7,
         drag: 0,
-        lastX: 1,
-        lastY: 1
+        vectorLastPos: null,
+        vectorDestination: null,
+        vectorFullStep: null, 
+        vectorHalfStep: null,
+        vectorApex: null
       }
     ],
-    [
-      { frame: 0, start:[100, -20], stop: [100, 500], acc: 1.0 }, 
-      { frame: 200, stop: [200, 500], acc: 1.0 }, 
-      { frame: 400, stop: [300, 400], acc: 1.0 }, 
-    ]
-  ],
-  [
-    "barney",
-    [
-      {
-        phase: "swing",
-        shoeSize: 20,
-        stride: 3,
-        swingTime: 30,
-        restTime: 0,
-        arcSize: 0.9,
-        arcApex: 1.2,
-        drag: 0,
-        lastX: 1,
-        lastY: 1
-      },
-      {
-        phase: "strike",
-        shoeSize: 20,
-        stride: 3,
-        swingTime: 30,
-        restTime: 0,
-        arcSize: 0.9,
-        arcApex: 1.2,
-        drag: 0,
-        lastX: 1,
-        lastY: 1
-      }
-    ],
-    [
+    [ 
       { frame: 0, start:[100, -20], stop: [100, 500], acc: 1.0 }, 
       { frame: 200, stop: [200, 500], acc: 1.0 }, 
       { frame: 400, stop: [300, 400], acc: 1.0 }, 
@@ -107,19 +79,68 @@ function draw() {
         if (myFrame >= walk[i][2][j].frame) {                    // #TODO replace #FREEZE_FRAME
 
           for ( let k = 0; k < walk[i][1].length; k++) {         // -k- FEET 
-            // determine start point - if it isn't set in instructions, use last postion
-            if ( walk[i][2][j].start ) { 
-                  vect00 = createVector( walk[i][2][j].start[0], walk[i][2][j].start[1] );
-                } else { // use existing
-                  vect00 = createVector(walk[i][1][k].lastX,walk[i][1][k].lastY);
-                }
 
-
-            // destination point
-            vect01 = createVector( walk[i][2][j].stop[0], walk[i][2][j].stop[1] );  
             
-            stroke(255)
-            line(vect00.x, vect00.y, vect01.x, vect01.y);            
+            if ( myFrame === walk[i][2][j].frame ) {             // NEW INSTRUCTION
+                
+                // establish the start vector
+                if ( walk[i][1][k].vectorLastPos ) { // check for last postion
+                  vectorStart = walk[i][1][k].vectorLastPos.copy();
+                } else if ( walk[i][2][j].start ) {  
+                  vectorStart = createVector( walk[i][2][j].start[0], walk[i][2][j].start[1] ); 
+                } else {
+                  vectorStart = createVector( random(1,width), random(1,height) )
+                }
+            
+                  vectorStop = createVector( walk[i][2][j].stop[0], walk[i][2][j].stop[1] );   // destination point
+                  vectorLength = vectorStart.dist(vectorStop); 
+                  fullStep = walk[i][1][k].shoeSize * walk[i][1][k].stride;
+                  
+                  // half steps, need 2, one at start & one at end
+                  if ( vectorLength % fullStep >= fullStep / 1.25 ) { // aesthetically, half-steps shouldn't be too short
+                    halfStep = ( vectorLength % fullStep ) / 2 ;  
+                  } else { // take a 1/2 step away from vectorDist and add it to the remainder 
+                    halfStep = ( ( vectorLength % fullStep ) + fullStep/2 ) / 2 ;  
+                  }
+              
+                  // translate that to vector increments
+                  vectorFullStep = createVector ( 
+                              (vectorStop.x-vectorStart.x)/walk[i][1][k].swingTime, 
+                              (vectorStop.y-vectorStart.y)/walk[i][1][k].swingTime );
+                  vectorHalfStep = vectorFullStep.mult(halfStep/fullStep);
+              
+                  // apex for circle size
+                  apexLength = walk[i][1][k].arcApex * vectorLength/2; // where the apex happens
+                  vectorApex = createVector (
+                              ()
+                  )
+              
+              
+                  // pass to global for future use
+                  walk[i][1][k].vectorLastPos = vectorStart.copy(); 
+                  walk[i][1][k].vectorDestination = vectorStop.copy(); 
+                  walk[i][1][k].vectorFullStep = vectorFullStep.copy();
+                  walk[i][1][k].vectorHalfStep = vectorFullStep.copy();
+              
+                  // That should be all the stuff needed to draw
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+            
+          }
+
+            
+           
             
             // 1 stride = 1 foot step = 1/2 one full walk cycle
             // 520px length with a 60px stride | 520 / 60 = 8.6666
@@ -128,16 +149,10 @@ function draw() {
             // if there was no remainder, use 1 stride and divide it to the in/out
             // in step = 20px | increment steps = 30 - as set | out step = 20
             
-            // Set increments for this and future draws
-            // pretend stuff
-            let inc = createVector ( 
-              (vect01.x-vect00.x)/walk[i][1][k].swingTime, 
-              (vect01.y-vect00.y)/walk[i][1][k].swingTime
-            )
             
-            vect00 = vect00.add(inc);
+            vectorStart = vectorStart.add(vectorFullStep);
             
-            circle(vect00.x, vect00.y, 25)
+            circle(vectorStart.x, vectorStart.y, 25)
 
             
             
@@ -145,8 +160,8 @@ function draw() {
 // CONSOLE LOG
    console.log(
      walk[i][0] + 
-     "  start: " + vect00.x + "," + vect00.y + 
-     "  vectDist: " + round(vect00.dist(vect01)) + 
+     "  start: " + round(vectorStart.x) + "," + round(vectorStart.y) + 
+     "  len: " + vectorLength + 
      "  phase: " + walk[i][1][k].phase);
             
           }
