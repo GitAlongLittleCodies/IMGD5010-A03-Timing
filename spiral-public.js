@@ -1,35 +1,41 @@
+// -----> UPDATE ME <-----
+let           n = 5 ;        // how many spirals?
+let   circleMag = 0.7 ;      // magnitude multiplier 0.01 to 1
+let circleTrans = 225 ;      // set circle transparency 0 to 255
+let     bgTrans = 15 ;       // set background transparency 0 to 255
+
 let x, y, size, angle, angleVel, radius, radiusVel, myFill, frame, cycle;
 let spirals = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  background(20,10); 
+  background(2); // 
   translate(width/2,height/2);
   angle = 0; 
   radius = width;
   
   // populate spiral array
-  for ( let i = 0; i < 5; i++){
+  for ( let i = 0; i < n; i++){
     cycle = round(random(200,800));
-    size = round(random(25,75));
+    size = round(random(50,100));
     angleVel = random(0.0, 0.2);
-    radius = round(random(width/2,width));
+    radius = round(random(width/3,width));
     radiusVel = random(0,1);
-    myFill = [random(0,251), random(0,100), random(0,100), random(0,1)]
+    myFill = [random(0,251), random(0,100), random(0,100), random(0,1)]; // unused 
     // new spiral
     let spiral = new Spiral(cycle, size, angleVel, radius, radiusVel, myFill);
     
     // array it
     spirals.push(spiral);
-    
-    console.log(spirals)
   }
 }
 
 function draw() {
 
-  background(20, 20, 20, 10); 
+  background(2, bgTrans); 
+  
   translate(width/2,height/2);
+  
   for ( let spiral of spirals) {
     spiral.show();
     spiral.move();
@@ -55,9 +61,9 @@ class Spiral{
   }
   show(){
     noStroke();
-    fill(0,200,255); 
-    // console.log(this.x)
-    circle(this.x, this.y, this.size * frameCount%cycle);
+    fill( 0, 200, 225, circleTrans ); 
+    circle(this.x, this.y, this.size * 
+      frameCount%cycle * circleMag );
   }
   move(){
     this.angle += this.angleVel;
@@ -71,4 +77,7 @@ class Spiral{
       this.radius = this.startRadius;
     }
   }
+  addNew(){
+
+    }
 }
