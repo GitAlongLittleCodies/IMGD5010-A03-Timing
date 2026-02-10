@@ -2,6 +2,10 @@
 
 # IMGD 5010 &bull; Assignment 03: Timing
 
+### Submission
+1. [Sketch Only: Spirals -public-](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
+2. [P5 code: Spirals -public-](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
+
 ### What inspired me:
 
 1. Don Hertzfeldt's [The Meaning of Life](https://youtu.be/qz9NTMtXV70?si=qUfdHb4B35B2f6Le&t=71)
