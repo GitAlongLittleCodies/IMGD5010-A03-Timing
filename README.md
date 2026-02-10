@@ -15,7 +15,7 @@
 > I had a girl come into my life around this time last year, show me your movie, make me fall madly in love with her and then leave all in the span of like two months, so I may be biased when I say your work is more impactful than it should be but I stand by that statement even so
 
 2. [FRAME COUNT AND TIMING](https://editor.p5js.org/jeffThompson/sketches/rrssQYach)
-    * I arrived at this resource looking to learn about frames, I left remembering how, when stuck in traffic, I am fascinated with how blinkers on a line of cars will sync together in a single blink once in a while.
+    * I arrived at this resource looking to learn about frames. I left remembering how, when stuck in traffic, I am fascinated with how blinkers on a line of cars will sync together in a single blink once in a while.
 
 ### Summary
 
