@@ -28,17 +28,19 @@
     * My submission titled, [Spirals - public -](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l), rests on the timing I was exposed to in FRAME COUNT TIMING mentioned above.
     * Like the line of cars with their turns signals on, I wanted to observe circles on randomly timed cycle sizes, go in and out of sync. 
       - Writing this out, I see now I should have declared the frame rate in the setup()... maybe?
-    * Add to that, it would be cool if the undulating circles also oerated in another system - like draining.
+    * Add to that, it would be cool if the undulating circles also operated in another system - like draining.
     * Combine the two and that's the code.
 
 ### DEFENSE OF TIMING
 
 3. Where's the score? Great question!
-   * I argue that it's buried in how the circle synchronize.
+   * I argue that it's buried in how the circles synchronize.
    * That is:
      * When you watch Spirals, the circles repeat in uniquely identifiable ways - like actors. 
      * These actor-circles are at most times asynchronous thus building tension - like plot.
      * As the circles spin from the outside-in, they collide and have minor moments of synchronous timing - like plot points.
      * Finally, if you watch long enough, it will all come together in a single moment at the center of the screen - the climax.
      * Then they'll repeat all over again.
-     * This only happens because they all cycle on the same frame rate. It's as pre-destinate that they'll eventually meet in a climax as certain as if I wrote the script verbatim. 
+     * This only happens because they all cycle at the same frame rate. It's as pre-destinate that they'll eventually meet in a climax as certain as if I wrote the script verbatim. 
+
+There's actually a whole bunch more I'd want to try but this one is getting submitted now. 
