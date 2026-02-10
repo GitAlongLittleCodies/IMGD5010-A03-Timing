@@ -30,7 +30,7 @@
 
 2. Spiral Circles - success -
     * My submission titled, [Spirals - public -](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l), rests on the timing I was exposed to in FRAME COUNT TIMING mentioned above.
-    * Like the line of cars with their turns signals on, I wanted to observe circles on randomly timed cycle sizes, go in and out of sync. 
+    * Like the line of cars with their turns signals on, I wanted to observe circles that change size on based on a randomized cycle, go in and out of sync. 
       - Writing this out, I see now I should have declared the frame rate in the setup()... maybe?
     * Add to that, it would be cool if the undulating circles also operated in another system - like draining.
     * Combine the two and that's the code.
