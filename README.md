@@ -4,7 +4,7 @@
 
 ### Submission: "Spirals -public-"
 1. [Sketch Only](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
-2. [P5 code:](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
+2. [P5 code](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
 
 ### What inspired me:
 
