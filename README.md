@@ -37,7 +37,7 @@
 
 ### DEFENSE OF TIMING
 
-3. Where's the score? Great question!
+1. Where's the score? Great question!
    * I argue that it's buried in how the circles synchronize.
    * That is:
      * When you watch Spirals, the circles repeat in uniquely identifiable ways - like actors. 
