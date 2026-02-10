@@ -45,6 +45,6 @@
      * As the circles spin from the outside-in, they collide and have minor moments of synchronous timing - like plot points.
      * Finally, if you watch long enough, it will all come together in a single moment at the center of the screen - the climax.
      * Then they'll repeat all over again.
-     * This only happens because they all cycle at the same frame rate. It's as pre-destinate that they'll eventually meet in a climax as certain as if I wrote the script verbatim. 
+     * This only happens because they all cycle at the same frame rate. It's as predestined that they'll eventually meet in a climax as certain as if I wrote the script verbatim. 
 
 There's actually a whole bunch more I'd want to try but this one is getting submitted now. 
