@@ -2,9 +2,9 @@
 
 # IMGD 5010 &bull; Assignment 03: Timing
 
-### Submission
-1. **Sketch Only:** [Spirals -public-](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
-2. **P5 code:** [Spirals -public-](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
+### Submission: "Spirals -public-"
+1. [Sketch Only](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
+2. [P5 code:](https://editor.p5js.org/GitAlongLittleCodies/full/z9RrUgW7l)
 
 ### What inspired me:
 
